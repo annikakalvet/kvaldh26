@@ -2,10 +2,16 @@
 <html>
   <head>
     <title>Joonistuspaberi hinna leidja</title>
+    <script>
+      function arutus(){
+        vastus.innerText=kogus.valueAsNumber*60;
+      }
+    </script>
   </head>
   <body>
     Lehe hind on 60 senti.Mitu lehte? <br />
-    <input type="number"/>
-    <input type="button" value="arvuta" />
+    <input type="number"id="kogus"/>
+    <input type="button" value="arvuta" onclick="arvutus()" />
+    <span id="vastus">vastuse koht</span> 
   </body>
 </html>
