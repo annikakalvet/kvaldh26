@@ -1,1 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Peokutse</title>
+    <script>
+      function jah() {
+        vastus.innerText = "Super, näeme seal!";
+      }
 
+      function ei() {
+        vastus.innerText = "Kahju, näeme varsti!";
+      }
+
+      function voibolla() {
+        vastus.innerText = "Loodame sind näha!";
+      }
+    </script>
+  </head>
+
+  <body>
+    Kas sa tuled meie peole? <br />
+
+    <input type="button" value="Jah" onclick="jah()" />
+    <input type="button" value="Ei" onclick="ei()" />
+    <input type="button" value="Võib-olla" onclick="voibolla()" />
+
+    <p id="vastus">Vali vastus!</p>
+  </body>
+</html>
