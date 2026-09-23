@@ -12,16 +12,16 @@
  <script>
    var kaart;
    function algus(){
-    kaart = L.map('kaardikiht').setView([59.439, 24.773], 13);
+    kaart = L.map('kaardikiht').setView([59.408, 24.708], 13);
       new L.TileLayer(
   'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
 	  attribution: "Map: <a  href='http://www.maaamet.ee/'>Maa-amet</a>",
 	  tms: true,
     }).addTo(kaart);
-    L.marker([59.439, 24.773]).addTo(kaart);
-    L.circleMarker([59.433, 24.749]).addTo(kaart);  
-    L.circle([59.440, 24.737], {radius: 1000}).addTo(kaart).bindPopup("Raudteejaam");    
-    L.circle([59.427203, 24.773312], {radius: 1000, color: "yellow"}).addTo(kaart);    
+    L.marker([59.408, 24.708]).addTo(kaart);
+    L.circleMarker([59.400, 24.650]).addTo(kaart);  
+    L.circle([59.410, 24.710], {radius: 1000}).addTo(kaart).bindPopup("Raudteejaam");    
+    L.circle([59.408601, 24.708259], {radius: 1000, color: "yellow"}).addTo(kaart);    
 
    }
 
