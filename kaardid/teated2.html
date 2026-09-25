@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Teated</title>
+    <script>
+      function loe(failinimi){
+        fetch(failinimi).then(d=>d.text()).then(kuva);
+      }
+      function kuva(tekst){
+        v1.innerText=tekst;
+      }
+    </script>
+  </head>
+  <body>
+    Teade: <span id="v1">teate koht</span>
+    <input type="button" value="Kuva teade" onclick="loe('ilmateade.txt')"/>
+    <input type="button" value="Kuva teine teade" onclick="loe('ilmateade2.txt')"/>
+  </body>
+</html>
