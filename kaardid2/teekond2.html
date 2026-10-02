@@ -30,7 +30,7 @@
    
    }
 	 function liikumine(){
-		 selgitus.innerText=marker1.getLangLng().distanceTo(marker2.getLangLng());
+		 selgitus.innerText=Math.round(marker1.getLangLng().distanceTo(marker2.getLangLng()))/1000+ " km";
 	 }
 	function kuvaTee(andmed){
 		tee=andmed.routes[0];
