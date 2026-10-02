@@ -33,7 +33,8 @@
    
    }
 	 function liikumine(){
-		 selgitus.innerText=Math.round(marker1.getLangLng().distanceTo(marker2.getLangLng()))/1000+ " km";
+		 selgitus.innerText=Math.round(marker1.getLatLng().distanceTo(marker2.getLatLng()))/1000+ " km";
+		 grupp.clearLayers();
 		 L.polyline([marker1.getLatLng(),marker2.getLatLng()]).addTo(grupp)
 	 }
 	function kuvaTee(andmed){
