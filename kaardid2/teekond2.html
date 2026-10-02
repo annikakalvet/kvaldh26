@@ -10,8 +10,8 @@
    #kaardikiht {float:bottom; width:100%; height:100%;}
  </style>
  <script>
-   var kaart;
-   var hypik;
+   let kaart;
+   let hypik;
    let marker1, marker2;
    let grupp;
    function algus(){
@@ -20,39 +20,37 @@
 	  attribution: "Map: <a  href='http://www.maaamet.ee/'>Maa-amet</a>",
 	  tms: true,
     }).addTo(kaart);
-     marker1=L.marker([59.439, 24.773], {draggable:true});
-     marker2=L.marker([59.439, 24.773], {draggable:true});
-	 grupp=L.layerGroup();
-	 grupp.addTo(kaart);
-     marker1.addTo(kaart);
-     marker2.addTo(kaart);
-	 marker1.on("dragend",liikumine);
-	 marker2.on("dragend",liikumine);  
+    marker1=L.marker([59.439, 24.773], {draggable: true});
+    marker2=L.marker([59.439, 24.773], {draggable: true});
+	grupp=L.layerGroup();
+	grupp.addTo(kaart);
+    marker1.addTo(kaart);
+    marker2.addTo(kaart);
+    marker1.on("dragend", liikumine);
+    marker2.on("dragend", liikumine);
    	hypik=L.popup(); 
 	kaart.on("click", vajutus);
-   
    }
-	 function liikumine(){
-		 selgitus.innerText=Math.round(marker1.getLatLng().distanceTo(marker2.getLatLng()))/1000+ " km";
-		 grupp.clearLayers();
-		 L.polyline([marker1.getLatLng(),marker2.getLatLng()]).addTo(grupp)
-	 }
+   function liikumine(){
+	   selgitus.innerText=Math.round(marker1.getLatLng().distanceTo(marker2.getLatLng()))/1000+" km";
+	   grupp.clearLayers();
+	   L.polyline([marker1.getLatLng(), marker2.getLatLng()]).addTo(grupp);
+   }
 	function kuvaTee(andmed){
 		tee=andmed.routes[0];
 		console.log(tee["duration"], tee["distance"]);
 		console.log(tee["geometry"]);
-		L.geoJSON(tee.geometry).addTo(kaart)
+		L.geoJSON(tee.geometry).addTo(kaart);
 	}
    function vajutus(e){
 	     hypik.setLatLng(e.latlng).
 		 setContent("Vajutasid "+e.latlng.toString()).openOn(kaart);
-
    }
 
   </script>
  </head>  
  <body onload="algus()">
-	<div id="selgitus">selgituse koht</div> 
+  <div id="selgitus">selgituse koht</div>
   <div id="kaardikiht"></div>
  </body>
 </html>
