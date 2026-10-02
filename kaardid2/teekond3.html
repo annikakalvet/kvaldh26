@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <title>Kaart</title>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+ <style>
+   body {padding: 0; margin: 0; }
+   html, body { height: 100%; width: 100%;}
+   #kaardikiht {float:bottom; width:100%; height:100%;}
+ </style>
+ <script>
+   let kaart;
+   let hypik;
+   let marker1, marker2;
+   let grupp;
+   function algus(){
+    kaart = L.map('kaardikiht').setView([59.439, 24.773], 12);
+      new L.TileLayer(  'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
+	  attribution: "Map: <a  href='http://www.maaamet.ee/'>Maa-amet</a>",
+	  tms: true,
+    }).addTo(kaart);
+    marker1=L.marker([59.439, 24.773], {draggable: true});
+    marker2=L.marker([59.439, 24.773], {draggable: true});
+	grupp=L.layerGroup();
+	grupp.addTo(kaart);
+    marker1.addTo(kaart);
+    marker2.addTo(kaart);
+    marker1.on("dragend", liikumine);
+    marker2.on("dragend", liikumine);
+   	hypik=L.popup(); 
+	kaart.on("click", vajutus);
+   }
+   function liikumine(){
+	   selgitus.innerText=Math.round(marker1.getLatLng().distanceTo(marker2.getLatLng()))/1000+" km";
+	   grupp.clearLayers();
+     let koht1=marker1.getLatLng();
+     let koht2=marker2.getLatLng();
+	   L.polyline([koht1, koht2]).addTo(grupp);
+     let aadress="https://router.project-osrm.org/route/v1/driving/"+koht1.lng+","+
+               koht1.lat+";"+koht2.lng+","+koht2.lat+"?overview=full&geometries=geojson"
+     console.log(aadress);
+     fetch(aadress).then(d => d.json()).then(kuvaTee)
+   }
+	function kuvaTee(andmed){
+		tee=andmed.routes[0];
+		console.log(tee["duration"], tee["distance"]);
+		console.log(tee["geometry"]);
+		L.geoJSON(tee.geometry).addTo(grupp);
+//    https://router.project-osrm.org/route/v1/driving/24.55307,59.428316;24.987373,59.457465?overview=full&geometries=geojson
+	}
+   function vajutus(e){
+	     hypik.setLatLng(e.latlng).
+		 setContent("Vajutasid "+e.latlng.toString()).openOn(kaart);
+   }
+
+  </script>
+ </head>  
+ <body onload="algus()">
+  <div id="selgitus">selgituse koht</div>
+  <div id="kaardikiht"></div>
+ </body>
+</html>
