@@ -13,6 +13,7 @@
    var kaart;
    var hypik;
    let marker1, marker2;
+   let grupp;
    function algus(){
     kaart = L.map('kaardikiht').setView([59.439, 24.773], 12);
       new L.TileLayer(  'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
@@ -21,6 +22,8 @@
     }).addTo(kaart);
      marker1=L.marker([59.439, 24.773], {draggable:true});
      marker2=L.marker([59.439, 24.773], {draggable:true});
+	 grupp=L.layerGroup();
+	 grupp.addTo(kaart);
      marker1.addTo(kaart);
      marker2.addTo(kaart);
 	 marker1.on("dragend",liikumine);
@@ -31,6 +34,7 @@
    }
 	 function liikumine(){
 		 selgitus.innerText=Math.round(marker1.getLangLng().distanceTo(marker2.getLangLng()))/1000+ " km";
+		 L.polyline([marker1.getLatLng(),marker2.getLatLng()]).addTo(grupp)
 	 }
 	function kuvaTee(andmed){
 		tee=andmed.routes[0];
