@@ -324,3 +324,97 @@ document.getElementById("uusTeekond")
 // ------------------------------------------
 
 algus();
+
+```javascript
+function saadaGoogleSheetsi() {
+
+    if (
+        alguspunkt === null ||
+        loppunkt === null ||
+        marsruut === null
+    ) {
+        return;
+    }
+
+
+    let kulu =
+        parseFloat(
+            document.getElementById("kulu").value
+        );
+
+
+    let hind =
+        parseFloat(
+            document.getElementById("hind").value
+        );
+
+
+    let distants =
+        marsruut.distance / 1000;
+
+
+    let liitrid =
+        distants * kulu / 100;
+
+
+    let maksumus =
+        liitrid * hind;
+
+
+    let andmed = {
+
+        algusLat: alguspunkt.lat,
+        algusLng: alguspunkt.lng,
+
+        loppLat: loppunkt.lat,
+        loppLng: loppunkt.lng,
+
+        distants: distants.toFixed(2),
+
+        kulu: kulu,
+
+        hind: hind,
+
+        liitrid: liitrid.toFixed(2),
+
+        maksumus: maksumus.toFixed(2)
+
+    };
+
+
+    fetch(
+        "https://script.google.com/macros/s/AKfycbxRecfFUMK7MA0Nu3ApyJPufDYFGT6kkKMqt1Skrt2BU_4WslcL13IKvtlYhhuysBMa/exec",
+        {
+
+            method: "POST",
+
+            body: JSON.stringify(andmed),
+
+            headers: {
+                "Content-Type": "text/plain"
+            }
+
+        }
+    )
+
+    .then(vastus => vastus.json())
+
+    .then(andmed => {
+
+        console.log(
+            "Andmed salvestatud:",
+            andmed
+        );
+
+    })
+
+    .catch(viga => {
+
+        console.error(
+            "Google Sheetsi saatmisel tekkis viga:",
+            viga
+        );
+
+    });
+
+}
