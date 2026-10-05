@@ -162,7 +162,7 @@ function arvutaMarsruut() {
 
             // Arvutame kütusekulu
             arvutaKulu(kilomeetrid);
-
+            saadaGoogleSheetsi();
         })
 
         .catch(viga => {
@@ -325,7 +325,6 @@ document.getElementById("uusTeekond")
 
 algus();
 
-```javascript
 function saadaGoogleSheetsi() {
 
     if (
