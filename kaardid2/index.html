@@ -1,0 +1,127 @@
+```html
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kütusekulu kalkulaator</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js">
+    </script>
+
+    <!-- Meie enda CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>⛽ Kütusekulu kalkulaator</h1>
+        <p>
+            Vali kaardil algus- ja lõpp-punkt ning arvuta teekonna kütusekulu.
+        </p>
+    </header>
+
+
+    <main>
+
+        <!-- KALKULAATOR -->
+        <section class="calculator">
+
+            <h2>Teekonna andmed</h2>
+
+            <div class="instruction" id="juhis">
+                📍 Klõpsa kaardil, et valida alguspunkt.
+            </div>
+
+            <div class="inputs">
+
+                <div>
+                    <label for="kulu">
+                        Auto keskmine kütusekulu (l/100 km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="kulu"
+                        value="6.5"
+                        min="0"
+                        step="0.1">
+                </div>
+
+
+                <div>
+                    <label for="hind">
+                        Kütuse hind (€ / liiter)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="hind"
+                        value="1.65"
+                        min="0"
+                        step="0.01">
+                </div>
+
+            </div>
+
+
+            <div class="results">
+
+                <div>
+                    <span>Teekonna pikkus</span>
+                    <strong id="distants">0 km</strong>
+                </div>
+
+                <div>
+                    <span>Kütust kulub</span>
+                    <strong id="liitrid">0 l</strong>
+                </div>
+
+                <div>
+                    <span>Teekonna maksumus</span>
+                    <strong id="maksumus">0 €</strong>
+                </div>
+
+            </div>
+
+
+            <button id="uusTeekond">
+                ↻ Alusta uut teekonda
+            </button>
+
+        </section>
+
+
+        <!-- KAART -->
+        <section class="map-section">
+
+            <h2>Vali teekond kaardil</h2>
+
+            <div id="kaardikiht"></div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>
+            Kütusekulu kalkulaator · JavaScript · Leaflet · OSRM
+        </p>
+    </footer>
+
+
+    <!-- Meie enda JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
+```
