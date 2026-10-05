@@ -1,0 +1,174 @@
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+
+header {
+    background: #263238;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+
+header h1 {
+    margin: 0 0 8px 0;
+}
+
+
+header p {
+    margin: 0;
+}
+
+
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 25px auto;
+}
+
+
+/* KALKULAATOR */
+
+.calculator {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+
+.calculator h2 {
+    margin-top: 0;
+}
+
+
+.instruction {
+    background: #eef4ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+
+.inputs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+
+.inputs > div {
+    flex: 1;
+}
+
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+
+/* TULEMUSED */
+
+.results {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+
+.results div {
+    flex: 1;
+    background: #f4f6f8;
+    padding: 18px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+
+.results span {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+
+.results strong {
+    font-size: 24px;
+}
+
+
+/* NUPP */
+
+button {
+    background: #263238;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+button:hover {
+    background: #455a64;
+}
+
+
+/* KAART */
+
+.map-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+
+.map-section h2 {
+    margin-top: 0;
+}
+
+
+#kaardikiht {
+    width: 100%;
+    height: 550px;
+    border-radius: 8px;
+}
+
+
+/* MOBIIL */
+
+@media (max-width: 700px) {
+
+    .inputs {
+        flex-direction: column;
+    }
+
+    .results {
+        flex-direction: column;
+    }
+
+}
