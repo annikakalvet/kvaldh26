@@ -16,7 +16,7 @@
             }
             LIMIT 10
             ';
-              let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURL(lause);
+              let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);
                fetch(aadress).then(d=>d.json()).then(kuva);
         }
         function kuva(d){
