@@ -2,7 +2,7 @@
 <html>
   <head>
      <script>
-        function kysi(){
+        function kysi(){ 
            let lause=`
              SELECT ?item ?itemLabel
               WHERE
@@ -42,9 +42,13 @@
        
         function kuva(d){
            console.log(d);
+           //vastus.textContent="";
            for(let rida of d["results"]["bindings"]){
               console.log(rida["itemLabel"]["value"]);
-              vastus.textContent+=" "+rida["itemLabel"]["value"];
+              //vastus.textContent+=" "+rida["itemLabel"]["value"];
+              let lause=document.createElement("li");
+              lause.textContent=rida["itemLabel"]["value"];
+              vastus.appendChild(lause);
            }
         }
      </script>
@@ -52,6 +56,6 @@
   <body>
      <input type="button" value="otsi" onclick="kysi()" />
      <input type="button" value="otsi 2" onclick="kysi2()" />
-     <div id="vastus"></div>
+     <ul id="vastus"></ul>
   </body>
 </html>
