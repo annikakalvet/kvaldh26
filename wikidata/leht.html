@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+     <script>
+        function kysi(){
+           let lause=`
+             SELECT ?item ?itemLabel
+              WHERE
+              {
+                ?item wdt:P27 wd:Q33. 
+                ?item wdt:P106 wd:Q177220.
+              
+                SERVICE wikibase:label {
+                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+                } 
+              }
+              LIMIT 10
+           `;
+           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
+           fetch(aadress).then(d => d.json()).then(kuva);
+        }
+
+        function kysi2(){
+           let lause=`
+             SELECT ?item ?itemLabel
+              WHERE
+              {
+                ?item wdt:P27 wd:Q191. 
+                ?item wdt:P106 wd:Q177220.
+              
+                SERVICE wikibase:label {
+                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+                } 
+              }
+              LIMIT 10
+           `;
+           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
+           fetch(aadress).then(d => d.json()).then(kuva);
+        }
+
+
+       
+        function kuva(d){
+           console.log(d);
+           for(let rida of d["results"]["bindings"]){
+              console.log(rida["itemLabel"]["value"]);
+              vastus.textContent+=" "+rida["itemLabel"]["value"];
+           }
+        }
+     </script>
+  </head>
+  <body>
+     <input type="button" value="otsi" onclick="kysi()" />
+     <input type="button" value="otsi 2" onclick="kysi2()" />
+     <div id="vastus"></div>
+  </body>
+</html>
