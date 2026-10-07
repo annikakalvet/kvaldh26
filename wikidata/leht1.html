@@ -3,24 +3,24 @@
   <head>
      <script>
         function kysi(){
-          let lause='
-            SELECT ?item ?itemLabel
-            WHERE
-            {
-              ?item wdt:P27 wd:Q191. # Must be a cat
-              ?item wdt:P106 wd:Q33999
-            
-              SERVICE wikibase:label {
-                bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
-              } 
-            }
-            LIMIT 10
-            ';
-              let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);
-               fetch(aadress).then(d=>d.json()).then(kuva);
+           let lause=`
+             SELECT ?item ?itemLabel
+              WHERE
+              {
+                ?item wdt:P27 wd:Q33. 
+                ?item wdt:P106 wd:Q177220.
+              
+                SERVICE wikibase:label {
+                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+                } 
+              }
+              LIMIT 10
+           `;
+           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
+           fetch(aadress).then(d => d.json()).then(kuva);
         }
         function kuva(d){
-          console.log(d);
+           console.log(d);
         }
      </script>
   </head>
