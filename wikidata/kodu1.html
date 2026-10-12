@@ -61,22 +61,28 @@
         .replace(/\r/g, " ");
     }
 
-    async function runQuery(query) {
-      const response = await fetch(
-        endpoint + "?query=" + encodeURIComponent(query),
-        {
-          headers: {
-            Accept: "application/sparql-results+json"
-          }
-        }
-      );
+    
+  async function runQuery(query) {
+  const url =
+    "https://query.wikidata.org/sparql?query=" +
+    encodeURIComponent(query) +
+    "&format=json";
 
-      if (!response.ok) {
-        throw new Error("Wikidata päring ebaõnnestus: " + response.status);
-      }
+  const response = await fetch(url);
 
-      return response.json();
-    }
+  if (response.status === 429) {
+    throw new Error(
+      "Wikidata piirab päringuid. Oota mõni minut ja proovi uuesti."
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error("Wikidata päring ebaõnnestus: " + response.status);
+  }
+
+  return await response.json();
+}
+
 
     async function searchPlayers(event) {
       event.preventDefault();
