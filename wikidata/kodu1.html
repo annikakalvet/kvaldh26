@@ -1,35 +1,196 @@
-<!doctype html>
-<html>
-  <head>
-     <script>
-        function kysi(){
-           let lause=`
-             SELECT ?item ?itemLabel
-              WHERE
-              {
-                ?item wdt:P153 wd:Q191. 
-                ?item wdt:P106 wd:Q937857.
-              
-                SERVICE wikibase:label {
-                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
-                } 
-              }
-              LIMIT 10
-           `;
-           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
-           fetch(aadress).then(d => d.json()).then(kuva);
+
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eesti jalgpallurid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+    nav { margin-bottom: 25px; }
+    nav a { margin-right: 15px; }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    input { width: min(320px, 90%); }
+    button { cursor: pointer; }
+    .player {
+      border-bottom: 1px solid #ddd;
+      padding: 14px 0;
+    }
+    .player a { font-weight: bold; }
+    .details { color: #555; font-size: 14px; }
+    #status { margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Jalgpallurid</a>
+    <a href="otsing.html">Otsi omaduste järgi</a>
+  </nav>
+
+  <h1>Eesti jalgpallurid</h1>
+  <p>Otsi Wikidatast Eesti kodakondsusega jalgpallureid.</p>
+
+  <form id="searchForm">
+    <input id="name" type="search"
+      placeholder="Sisesta mängija nimi või jäta tühjaks">
+    <button type="submit">Otsi</button>
+  </form>
+
+  <p id="status">Vajuta otsingunuppu, et mängijaid laadida.</p>
+  <div id="results"></div>
+
+  <script>
+    const endpoint = "https://query.wikidata.org/sparql";
+
+    function escapeLiteral(value) {
+      return value
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, " ")
+        .replace(/\r/g, " ");
+    }
+
+    async function runQuery(query) {
+      const response = await fetch(
+        endpoint + "?query=" + encodeURIComponent(query),
+        {
+          headers: {
+            Accept: "application/sparql-results+json"
+          }
         }
-        function kuva(d){
-           console.log(d);
-           for(let rida of d["results"]["bindings"]){
-              console.log(rida["itemLabel"]["value"]);
-              vastus.textContent+=" "+rida["itemLabel"]["value"];
-           }
+      );
+
+      if (!response.ok) {
+        throw new Error("Wikidata päring ebaõnnestus: " + response.status);
+      }
+
+      return response.json();
+    }
+
+    async function searchPlayers(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const status = document.getElementById("status");
+      const results = document.getElementById("results");
+
+      results.replaceChildren();
+      status.textContent = "Laadin andmeid Wikidatast...";
+
+      const nameFilter = name
+        ? `FILTER(CONTAINS(LCASE(STR(?itemLabel)), LCASE("${escapeLiteral(name)}")))`
+        : "";
+
+      const query = `
+        SELECT DISTINCT ?item ?itemLabel ?birthDate
+               ?clubLabel ?positionLabel
+        WHERE {
+          ?item wdt:P106 wd:Q937857;
+                wdt:P27 wd:Q191.
+
+          OPTIONAL { ?item wdt:P569 ?birthDate. }
+          OPTIONAL { ?item wdt:P54 ?club. }
+          OPTIONAL { ?item wdt:P413 ?position. }
+
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "et,en".
+          }
+
+          ${nameFilter}
         }
-     </script>
-  </head>
-  <body>
-     <input type="button" value="otsi" onclick="kysi()" />
-     <div id="vastus"></div>
-  </body>
+        ORDER BY ?itemLabel
+        LIMIT 100
+      `;
+
+      try {
+        const data = await runQuery(query);
+        const players = new Map();
+
+        for (const row of data.results.bindings) {
+          const uri = row.item.value;
+
+          if (!players.has(uri)) {
+            players.set(uri, {
+              uri,
+              name: row.itemLabel.value,
+              birthDate: "",
+              clubs: new Set(),
+              positions: new Set()
+            });
+          }
+
+          const player = players.get(uri);
+
+          if (row.birthDate) {
+            player.birthDate = row.birthDate.value.slice(0, 10);
+          }
+          if (row.clubLabel) {
+            player.clubs.add(row.clubLabel.value);
+          }
+          if (row.positionLabel) {
+            player.positions.add(row.positionLabel.value);
+          }
+        }
+
+        if (players.size === 0) {
+          status.textContent = "Mängijaid ei leitud.";
+          return;
+        }
+
+        status.textContent =
+          "Leiti " + players.size + " mängijat. Kuvatakse kuni 100 tulemust.";
+
+        for (const player of players.values()) {
+          const card = document.createElement("div");
+          card.className = "player";
+
+          const link = document.createElement("a");
+          link.href = player.uri;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = player.name;
+          card.appendChild(link);
+
+          const details = document.createElement("p");
+          details.className = "details";
+
+          const parts = [];
+          if (player.birthDate) {
+            parts.push("Sünniaeg: " + player.birthDate);
+          }
+          if (player.positions.size) {
+            parts.push("Positsioon: " + [...player.positions].join(", "));
+          }
+          if (player.clubs.size) {
+            parts.push("Klubi: " + [...player.clubs].join(", "));
+          }
+
+          details.textContent =
+            parts.join(" | ") || "Lisainfo puudub.";
+          card.appendChild(details);
+          results.appendChild(card);
+        }
+      } catch (error) {
+        status.textContent =
+          "Andmete laadimine ebaõnnestus. Proovi mõne aja pärast uuesti. " +
+          error.message;
+      }
+    }
+
+    document.getElementById("searchForm")
+      .addEventListener("submit", searchPlayers);
+  </script>
+
+</body>
 </html>
