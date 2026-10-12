@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Jalgpallurite otsing</title>
+
+    <script>
+        function kysi() {
+            let lause = `
+                SELECT DISTINCT ?isik ?isikLabel
+                WHERE {
+                    ?isik wdt:P27 wd:${riik.value}.
+                    ?isik wdt:P106 wd:Q937857.
+                    ?isik wdt:P21 wd:${sugu.value}.
+
+                    SERVICE wikibase:label {
+                        bd:serviceParam wikibase:language "et,en".
+                    }
+                }
+                ORDER BY ?isikLabel
+                LIMIT 50
+            `;
+
+            let aadress =
+                "https://query.wikidata.org/sparql?format=json&query="
+                + encodeURIComponent(lause);
+
+            vastus.innerHTML = "";
+            vastus.textContent = "Otsin jalgpallureid...";
+
+            fetch(aadress)
+                .then(d => {
+                    if (!d.ok) {
+                        throw new Error("Päring ebaõnnestus");
+                    }
+                    return d.json();
+                })
+                .then(kuva)
+                .catch(viga => {
+                    vastus.textContent =
+                        "Andmete laadimine ebaõnnestus. Proovi uuesti.";
+                    console.error(viga);
+                });
+        }
+
+        function kuva(d) {
+            vastus.innerHTML = "";
+
+            let tulemused = d.results.bindings;
+
+            if (tulemused.length === 0) {
+                vastus.textContent = "Jalgpallureid ei leitud.";
+                return;
+            }
+
+            for (let rida of tulemused) {
+                let element = document.createElement("li");
+                element.textContent = rida.isikLabel.value;
+                vastus.appendChild(element);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Jalgpallurite otsing</h1>
+
+    <label for="riik">Vali riik:</label>
+    <select id="riik" onchange="kysi()">
+        <option value="Q33">Soome</option>
+        <option value="Q191" selected>Eesti</option>
+        <option value="Q34">Rootsi</option>
+        <option value="Q38">Itaalia</option>
+        <option value="Q145">Ühendkuningriik</option>
+        <option value="Q29">Hispaania</option>
+        <option value="Q183">Saksamaa</option>
+        <option value="Q142">Prantsusmaa</option>
+        <option value="Q55">Holland</option>
+        <option value="Q36">Poola</option>
+    </select>
+
+    <label for="sugu">Vali sugu:</label>
+    <select id="sugu" onchange="kysi()">
+        <option value="Q6581097">Mees</option>
+        <option value="Q6581072">Naine</option>
+    </select>
+
+    <input type="button" value="Otsi" onclick="kysi()">
+
+    <ul id="vastus"></ul>
+</body>
+</html>
