@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Otsi jalgpallurit omaduste järgi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+    nav { margin-bottom: 25px; }
+    nav a { margin-right: 15px; }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      max-width: 100%;
+    }
+    button { cursor: pointer; margin: 5px 5px 5px 0; }
+    .player {
+      border-bottom: 1px solid #ddd;
+      padding: 14px 0;
+    }
+    .player a { font-weight: bold; }
+    .details { color: #555; font-size: 14px; }
+    #status { margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Jalgpallurid</a>
+    <a href="otsing.html">Otsi omaduste järgi</a>
+  </nav>
+
+  <h1>Millist jalgpallurit otsid?</h1>
+  <p>Vali üks või mitu omadust. Tühjaks jäetud välju ei filtreerita.</p>
+
+  <form id="searchForm">
+    <div class="filters">
+
+      <label for="name">Mängija nimi
+        <input id="name" type="search"
+          placeholder="Näiteks Konstantin Vassiljev">
+      </label>
+
+      <label for="country">Kodakondsus
+        <select id="country">
+          <option value="">Kõik riigid</option>
+          <option value="Q191">Eesti</option>
+          <option value="Q33">Soome</option>
+          <option value="Q34">Rootsi</option>
+          <option value="Q35">Taani</option>
+          <option value="Q20">Norra</option>
+          <option value="Q183">Saksamaa</option>
+          <option value="Q29">Hispaania</option>
+          <option value="Q142">Prantsusmaa</option>
+          <option value="Q38">Itaalia</option>
+          <option value="Q145">Ühendkuningriik</option>
+        </select>
+      </label>
+
+      <label for="position">Mängupositsioon
+        <select id="position">
+          <option value="">Kõik positsioonid</option>
+        </select>
+      </label>
+
+      <label for="club">Klubi
+        <select id="club">
+          <option value="">Kõik klubid</option>
+        </select>
+      </label>
+
+      <label for="fromYear">Sünniaasta alates
+        <input id="fromYear" type="number"
+          min="1850" max="2026" placeholder="Näiteks 1990">
+      </label>
+
+      <label for="toYear">Sünniaasta kuni
+        <input id="toYear" type="number"
+          min="1850" max="2026" placeholder="Näiteks 2005">
+      </label>
+
+    </div>
+
+    <button type="submit">Otsi mängijaid</button>
+    <button type="button" id="reset">Tühjenda valikud</button>
+  </form>
+
+  <p id="status">Laadin klubisid ja positsioone Wikidatast...</p>
+  <div id="results"></div>
+
+  <script>
+    const endpoint = "https://query.wikidata.org/sparql";
+
+    async function runQuery(query) {
+      const response = await fetch(
+        endpoint + "?query=" + encodeURIComponent(query),
+        {
+          headers: {
+            Accept: "application/sparql-results+json"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Wikidata päring ebaõnnestus: " + response.status);
+      }
+
+      return response.json();
+    }
+
+    // Laeb rippmenüü valikud Wikidatast.
+    async function loadOptions() {
+      const status = document.getElementById("status");
+
+      const positionsQuery = `
+        SELECT DISTINCT ?value ?valueLabel WHERE {
+          ?player wdt:P106 wd:Q937857;
+                  wdt:P413 ?value.
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "et,en".
+          }
+        }
+        ORDER BY ?valueLabel
+        LIMIT 100
+      `;
+
+      const clubsQuery = `
+        SELECT DISTINCT ?value ?valueLabel WHERE {
+          ?player wdt:P106 wd:Q937857;
+                  wdt:P54 ?value.
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "et,en".
+          }
+        }
+        ORDER BY ?valueLabel
+        LIMIT 300
+      `;
+
+      try {
+        const [positionsData, clubsData] = await Promise.all([
+          runQuery(positionsQuery),
+          runQuery(clubsQuery)
+        ]);
+
+        addOptions(
+          "position",
+          positionsData.results.bindings
+        );
+
+        addOptions(
+          "club",
+          clubsData.results.bindings
+        );
+
+        status.textContent =
+          "Vali tingimused ja vajuta „Otsi mängijaid”.";
+      } catch (error) {
+        status.textContent =
+          "Rippmenüüde laadimine ebaõnnestus. " +
+          "Võid proovida lehte värskendada. " + error.message;
+      }
+    }
+
+    function addOptions(elementId, bindings) {
+      const select = document.getElementById(elementId);
+
+      for (const row of bindings) {
+        const option = document.createElement("option");
+
+        option.value = row.value.value.split("/").pop();
+        option.textContent = row.valueLabel.value;
+
+        select.appendChild(option);
+      }
+    }
+
+    async function searchPlayers(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const country = document.getElementById("country").value;
+      const position = document.getElementById("position").value;
+      const club = document.getElementById("club").value;
+      const fromYear = document.getElementById("fromYear").value;
+      const toYear = document.getElementById("toYear").value;
+
+      const status = document.getElementById("status");
+      const results = document.getElementById("results");
+
+      results.replaceChildren();
+      status.textContent = "Otsin Wikidatast...";
+
+      const filters = [];
+
+      if (country) {
+        filters.push(`?item wdt:P27 wd:${country}.`);
+      }
+
+      if (position) {
+        filters.push(`?item wdt:P413 wd:${position}.`);
+      }
+
+      if (club) {
+        filters.push(`?item wdt:P54 wd:${club}.`);
+      }
+
+      if (name) {
+        const safeName = name
+          .replace(/\\/g, "\\\\")
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, " ")
+          .replace(/\r/g, " ");
+
+        filters.push(
+          `FILTER(CONTAINS(LCASE(STR(?itemLabel)), ` +
+          `LCASE("${safeName}")))`
+        );
+      }
+
+      const validYear = value =>
+        value !== "" &&
+        Number.isInteger(Number(value)) &&
+        Number(value) >= 1850 &&
+        Number(value) <= 2026;
+
+      if (validYear(fromYear)) {
+        filters.push(`
+          ?item wdt:P569 ?dateFrom.
+          FILTER(YEAR(?dateFrom) >= ${Number(fromYear)})
+        `);
+      }
+
+      if (validYear(toYear)) {
+        filters.push(`
+          ?item wdt:P569 ?dateTo.
+          FILTER(YEAR(?dateTo) <= ${Number(toYear)})
+        `);
+      }
+
+      if (
+        validYear(fromYear) &&
+        validYear(toYear) &&
+        Number(fromYear) > Number(toYear)
+      ) {
+        status.textContent =
+          "Algusaasta ei saa olla hilisem kui lõpuaasta.";
+        return;
+      }
+
+      const query = `
+        SELECT DISTINCT ?item ?itemLabel ?birthDate
+               ?countryLabel ?positionLabel ?clubLabel
+        WHERE {
+          ?item wdt:P106 wd:Q937857.
+
+          OPTIONAL { ?item wdt:P569 ?birthDate. }
+          OPTIONAL { ?item wdt:P27 ?country. }
+          OPTIONAL { ?item wdt:P413 ?position. }
+          OPTIONAL { ?item wdt:P54 ?club. }
+
+          SERVICE wikibase:label {
+            bd:serviceParam wikibase:language "et,en".
+          }
+
+          ${filters.join("\n")}
+        }
+        ORDER BY ?itemLabel
+        LIMIT 100
+      `;
+
+      try {
+        const data = await runQuery(query);
+        const players = new Map();
+
+        for (const row of data.results.bindings) {
+          const uri = row.item.value;
+
+          if (!players.has(uri)) {
+            players.set(uri, {
+              uri,
+              name: row.itemLabel.value,
+              birthDate: "",
+              countries: new Set(),
+              positions: new Set(),
+              clubs: new Set()
+            });
+          }
+
+          const player = players.get(uri);
+
+          if (row.birthDate) {
+            player.birthDate = row.birthDate.value.slice(0, 10);
+          }
+          if (row.countryLabel) {
+            player.countries.add(row.countryLabel.value);
+          }
+          if (row.positionLabel) {
+            player.positions.add(row.positionLabel.value);
+          }
+          if (row.clubLabel) {
+            player.clubs.add(row.clubLabel.value);
+          }
+        }
+
+        if (players.size === 0) {
+          status.textContent =
+            "Sobivate tingimustega mängijaid ei leitud.";
+          return;
+        }
+
+        status.textContent =
+          "Leiti " + players.size +
+          " mängijat. Kuvatakse kuni 100 tulemust.";
+
+        for (const player of players.values()) {
+          const card = document.createElement("div");
+          card.className = "player";
+
+          const link = document.createElement("a");
+          link.href = player.uri;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = player.name;
+          card.appendChild(link);
+
+          const details = document.createElement("p");
+          details.className = "details";
+
+          const parts = [];
+
+          if (player.birthDate) {
+            parts.push("Sünniaeg: " + player.birthDate);
+          }
+          if (player.countries.size) {
+            parts.push(
+              "Kodakondsus: " + [...player.countries].join(", ")
+            );
+          }
+          if (player.positions.size) {
+            parts.push(
+              "Positsioon: " + [...player.positions].join(", ")
+            );
+          }
+          if (player.clubs.size) {
+            parts.push(
+              "Klubi: " + [...player.clubs].join(", ")
+            );
+          }
+
+          details.textContent =
+            parts.join(" | ") || "Lisainfo puudub.";
+
+          card.appendChild(details);
+          results.appendChild(card);
+        }
+      } catch (error) {
+        status.textContent =
+          "Otsing ebaõnnestus. Kontrolli internetiühendust " +
+          "ja proovi uuesti. " + error.message;
+      }
+    }
+
+    document.getElementById("searchForm")
+      .addEventListener("submit", searchPlayers);
+
+    document.getElementById("reset")
+      .addEventListener("click", () => {
+        document.getElementById("searchForm").reset();
+        document.getElementById("results").replaceChildren();
+        document.getElementById("status").textContent =
+          "Valikud tühjendatud. Vali uued tingimused.";
+      });
+
+    loadOptions();
+  </script>
+
+</body>
+</html>
