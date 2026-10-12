@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Eesti jalgpallurid</title>
+
+    <script>
+        function kysi() {
+            let lause = `
+                SELECT DISTINCT ?item ?itemLabel
+                WHERE {
+                    ?item wdt:P27 wd:Q33.
+                    ?item wdt:P106 wd:Q937857.
+
+                    SERVICE wikibase:label {
+                        bd:serviceParam
+                        wikibase:language "et,en".
+                    }
+                }
+                ORDER BY ?itemLabel
+                LIMIT 50
+            `;
+
+            let aadress =
+                "https://query.wikidata.org/sparql?format=json&query="
+                + encodeURIComponent(lause);
+
+            vastus.textContent = "Otsin jalgpallureid...";
+
+            fetch(aadress)
+                .then(d => {
+                    if (!d.ok) {
+                        throw new Error("Andmete laadimine ebaõnnestus");
+                    }
+                    return d.json();
+                })
+                .then(kuva)
+                .catch(viga => {
+                    vastus.textContent =
+                        "Andmete laadimine ebaõnnestus. Proovi uuesti.";
+                    console.error(viga);
+                });
+        }
+
+        function kuva(d) {
+            vastus.replaceChildren();
+
+            let tulemused = d.results.bindings;
+
+            if (tulemused.length === 0) {
+                vastus.textContent = "Jalgpallureid ei leitud.";
+                return;
+            }
+
+            let loend = document.createElement("ul");
+
+            for (let rida of tulemused) {
+                let nimi = rida.itemLabel.value;
+                let element = document.createElement("li");
+
+                element.textContent = nimi;
+                loend.appendChild(element);
+            }
+
+            vastus.appendChild(loend);
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Eesti jalgpallurid</h1>
+
+    <input type="button" value="Otsi jalgpallureid" onclick="kysi()">
+
+    <div id="vastus"></div>
+</body>
+</html>
