@@ -2,6 +2,12 @@
 <!DOCTYPE html>
 <html lang="et">
 <head>
+  <link
+  href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css"
+  rel="stylesheet"
+/>
+
+<script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Eesti kirjanike võrgustik</title>
@@ -36,6 +42,20 @@
 </head>
 
 <body>
+  <section>
+  <h2>Eesti kirjanike ajajoon</h2>
+  <p>Kirjanikud sünniaasta järgi.</p>
+
+  <input type="file" id="timelineFile" accept=".csv,text/csv">
+
+  <div id="timeline" style="
+    height: 500px;
+    border: 1px solid #ccc;
+    margin-top: 15px;
+  "></div>
+
+  <p id="timelineInfo"></p>
+</section>
   <h1>Eesti kirjanike ja koolide võrgustik</h1>
 
   <p>
@@ -244,5 +264,119 @@
       }
     );
   </script>
+  <script>
+  document
+    .getElementById("timelineFile")
+    .addEventListener("change", function (event) {
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const text = e.target.result.replace(/^\uFEFF/, "");
+        const rows = text.trim().split(/\r?\n/);
+
+        function parseRow(row) {
+          const result = [];
+          let value = "";
+          let insideQuotes = false;
+
+          for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+
+            if (char === '"') {
+              if (insideQuotes && row[i + 1] === '"') {
+                value += '"';
+                i++;
+              } else {
+                insideQuotes = !insideQuotes;
+              }
+            } else if (char === "," && !insideQuotes) {
+              result.push(value);
+              value = "";
+            } else {
+              value += char;
+            }
+          }
+
+          result.push(value);
+          return result;
+        }
+
+        const headers = parseRow(rows[0]).map(h =>
+          h.trim().replace(/^\?/, "").toLowerCase()
+        );
+
+        const nameIndex = headers.findIndex(h =>
+          h.includes("kirjaniklabel")
+        );
+
+        const yearIndex = headers.findIndex(h =>
+          h.includes("sunniaasta")
+        );
+
+        if (nameIndex === -1 || yearIndex === -1) {
+          document.getElementById("timelineInfo").textContent =
+            "CSV-failist ei leitud kirjaniku nime või sünniaasta veergu.";
+          return;
+        }
+
+        const items = [];
+
+        rows.slice(1).forEach((row, index) => {
+          const columns = parseRow(row);
+          const name = columns[nameIndex]?.trim();
+          const year = columns[yearIndex]?.trim();
+
+          if (!name || !/^\d{1,4}$/.test(year)) return;
+
+          const numericYear = Number(year);
+
+          if (numericYear < 1 || numericYear > 2026) return;
+
+          items.push({
+            id: index + 1,
+            content: name,
+            start: `${year.padStart(4, "0")}-01-01`,
+            title: `${name} – sünniaasta ${year}`
+          });
+        });
+
+        if (items.length === 0) {
+          document.getElementById("timelineInfo").textContent =
+            "CSV-failist ei leitud sobivaid andmeid.";
+          return;
+        }
+
+        const container = document.getElementById("timeline");
+
+        if (window.writerTimeline) {
+          window.writerTimeline.destroy();
+        }
+
+        window.writerTimeline = new vis.Timeline(
+          container,
+          new vis.DataSet(items),
+          {
+            height: "500px",
+            zoomMin: 1000 * 60 * 60 * 24 * 365 * 10,
+            zoomMax: 1000 * 60 * 60 * 24 * 365 * 500,
+            orientation: "top",
+            margin: {
+              item: 10,
+              axis: 5
+            }
+          }
+        );
+
+        document.getElementById("timelineInfo").textContent =
+          `Ajajoonele lisati ${items.length} kirjanikku.`;
+      };
+
+      reader.readAsText(file, "UTF-8");
+    });
+</script>
 </body>
 </html>
