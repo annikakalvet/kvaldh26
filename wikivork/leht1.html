@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eesti kirjanike võrgustik</title>
+
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      color: #253447;
+    }
+
+    #network {
+      height: 650px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    #info {
+      padding: 14px;
+      background: #f2f5f8;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    button, input {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Eesti kirjanike ja koolide võrgustik</h1>
+
+  <p>
+    Laadi üles Wikidata päringu CSV-fail.
+    Klõpsa graafi sõlmedel, et uurida seoseid.
+  </p>
+
+  <input type="file" id="file" accept=".csv,text/csv">
+
+  <div id="network"></div>
+
+  <div id="info">
+    Vali graafist kirjanik või kool.
+  </div>
+
+  <script>
+    const nodes = new vis.DataSet([]);
+    const edges = new vis.DataSet([]);
+    let network;
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let quoted = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+
+        if (c === '"') {
+          if (quoted && text[i + 1] === '"') {
+            cell += '"';
+            i++;
+          } else {
+            quoted = !quoted;
+          }
+        } else if (c === "," && !quoted) {
+          row.push(cell.trim());
+          cell = "";
+        } else if ((c === "\n" || c === "\r") && !quoted) {
+          if (c === "\r" && text[i + 1] === "\n") i++;
+          row.push(cell.trim());
+          if (row.some(v => v !== "")) rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += c;
+        }
+      }
+
+      row.push(cell.trim());
+      if (row.some(v => v !== "")) rows.push(row);
+
+      return rows;
+    }
+
+    document.getElementById("file").addEventListener(
+      "change", async event => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const text = await file.text();
+        const rows = parseCSV(text);
+
+        if (rows.length < 2) {
+          alert("CSV-failis pole piisavalt andmeid.");
+          return;
+        }
+
+        const headers = rows[0].map(h =>
+          h.replace(/^\uFEFF/, "").replace(/^"|"$/g, "")
+            .replace(/^\?/, "").toLowerCase()
+        );
+
+        const authorIndex = headers.findIndex(h =>
+          h.includes("kirjanik") && h.includes("label")
+        );
+        const schoolIndex = headers.findIndex(h =>
+          h.includes("kool") && h.includes("label")
+        );
+
+        if (authorIndex < 0 || schoolIndex < 0) {
+          alert(
+            "Kirjaniku ja kooli veerge ei leitud. " +
+            "Kontrolli CSV-faili veerupäiseid."
+          );
+          return;
+        }
+
+        nodes.clear();
+        edges.clear();
+
+        const knownNodes = new Set();
+        const knownEdges = new Set();
+
+        for (const row of rows.slice(1)) {
+          const author = row[authorIndex]?.trim();
+          const school = row[schoolIndex]?.trim();
+
+          if (!author || !school) continue;
+
+          const authorId = "author:" + author;
+          const schoolId = "school:" + school;
+
+          if (!knownNodes.has(authorId)) {
+            nodes.add({
+              id: authorId,
+              label: author,
+              group: "author",
+              shape: "dot",
+              color: "#4778a8",
+              size: 12
+            });
+            knownNodes.add(authorId);
+          }
+
+          if (!knownNodes.has(schoolId)) {
+            nodes.add({
+              id: schoolId,
+              label: school,
+              group: "school",
+              shape: "box",
+              color: "#d6a64f",
+              font: { color: "#253447" }
+            });
+            knownNodes.add(schoolId);
+          }
+
+          const edgeId = authorId + "->" + schoolId;
+
+          if (!knownEdges.has(edgeId)) {
+            edges.add({
+              id: edgeId,
+              from: authorId,
+              to: schoolId
+            });
+            knownEdges.add(edgeId);
+          }
+        }
+
+        const options = {
+          nodes: {
+            font: { size: 14 },
+            borderWidth: 1
+          },
+          edges: {
+            color: { color: "#b7c0ca" },
+            smooth: false
+          },
+          physics: {
+            stabilization: { iterations: 200 },
+            barnesHut: {
+              gravitationalConstant: -5000,
+              springLength: 120,
+              springConstant: 0.03
+            }
+          },
+          interaction: {
+            hover: true,
+            navigationButtons: true,
+            keyboard: true
+          }
+        };
+
+        if (network) network.destroy();
+
+        network = new vis.Network(
+          document.getElementById("network"),
+          { nodes, edges },
+          options
+        );
+
+        network.on("click", params => {
+          const info = document.getElementById("info");
+
+          if (params.nodes.length === 0) {
+            info.textContent = "Vali graafist kirjanik või kool.";
+            return;
+          }
+
+          const node = nodes.get(params.nodes[0]);
+          const connected = network.getConnectedNodes(node.id);
+
+          info.innerHTML = "";
+
+          const title = document.createElement("strong");
+          title.textContent = node.label;
+          info.appendChild(title);
+
+          const description = document.createElement("p");
+          description.textContent =
+            (node.group === "author" ? "Kirjanik" : "Kool") +
+            ". Seotud sõlmi: " + connected.length;
+          info.appendChild(description);
+
+          const list = document.createElement("ul");
+
+          connected.forEach(id => {
+            const li = document.createElement("li");
+            li.textContent = nodes.get(id).label;
+            list.appendChild(li);
+          });
+
+          info.appendChild(list);
+        });
+      }
+    );
+  </script>
+</body>
+</html>
