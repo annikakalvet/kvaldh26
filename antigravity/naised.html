@@ -5,63 +5,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naised veebitabelist</title>
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --primary-border: #bfdbfe;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 30px 20px;
+            padding: 30px 16px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
         }
 
         .container {
-            background: #ffffff;
-            max-width: 480px;
+            background: var(--card-bg);
+            max-width: 680px;
             width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 24px 28px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 12px;
         }
 
         h1 {
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 8px;
+            font-size: 1.65rem;
+            margin: 0 0 8px 0;
             color: #111827;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
         .info-bar {
             font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 20px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
             display: flex;
-            flex-direction: column;
-            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
         }
 
         .status-badge {
             display: inline-block;
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 9999px;
             background-color: #e0f2fe;
             color: #0369a1;
-            width: fit-content;
+        }
+
+        /* Vaate vahetamise nupud */
+        .view-toggle {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ringvaate ala */
+        .circle-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 1 / 1;
+            margin: 10px auto 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dekoratiivne orbiidi ring */
+        .orbit-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px dashed #cbd5e1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Pöörlev konteiner nimede jaoks */
+        .ring-container {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 3.5s cubic-bezier(0.15, 0.95, 0.2, 1);
+        }
+
+        /* Keskne infoketas */
+        .center-hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            text-align: center;
+            user-select: none;
+        }
+
+        .center-count {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .center-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        .spin-btn {
+            margin-top: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .spin-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* Ringis olevad nimesildid */
+        .name-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            color: #1e3a8a;
+            border: 1.5px solid var(--primary-border);
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.12);
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, box-shadow 0.2s;
+            z-index: 2;
+        }
+
+        .name-node:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-hover);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+            z-index: 10;
+        }
+
+        .name-node.highlighted {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #1d4ed8;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+            transform: translate(var(--tx), var(--ty)) scale(1.22) !important;
+            z-index: 20;
+        }
+
+        /* Nimekirja vaade (loend) */
+        .list-wrapper {
+            width: 100%;
+            max-width: 480px;
+            display: none;
+            margin-bottom: 20px;
         }
 
         ol {
             list-style-position: inside;
             padding: 0;
-            margin: 0 0 20px 0;
+            margin: 0;
         }
 
         li {
             padding: 10px 14px;
             margin-bottom: 6px;
             background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
             font-weight: 500;
@@ -73,55 +263,222 @@
             background-color: #f3f4f6;
         }
 
+        /* Alumised juhtnupud */
         .controls {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
+            width: 100%;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-color);
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--text-muted);
+            gap: 12px;
         }
 
-        button {
-            background-color: #2563eb;
+        .action-btn {
+            background-color: var(--primary);
             color: #ffffff;
             border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.875rem;
-            font-weight: 500;
-            transition: background-color 0.15s ease;
+            font-weight: 600;
+            transition: background-color 0.15s ease, transform 0.1s;
         }
 
-        button:hover {
-            background-color: #1d4ed8;
+        .action-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobiilivaate kohandused */
+        @media (max-width: 540px) {
+            .container {
+                padding: 20px 16px;
+            }
+            .name-node {
+                font-size: 0.8rem;
+                padding: 5px 10px;
+            }
+            .center-hub {
+                width: 95px;
+                height: 95px;
+            }
+            .center-count {
+                font-size: 1.4rem;
+            }
+            .center-label {
+                font-size: 0.65rem;
+            }
+            .spin-btn {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Naised arvutustabelist</h1>
-    <div class="info-bar">
-        <div>Viimati uuendatud: <strong id="viimatiUuendatud">-</strong></div>
-        <div>Järgmine uuendus: <strong id="loendur">30</strong> s pärast</div>
-        <div><span id="olek" class="status-badge">Laadimine...</span></div>
+    <div class="header">
+        <h1>Naised arvutustabelist</h1>
+        <div class="info-bar">
+            <div>Viimati uuendatud: <strong id="viimatiUuendatud">-</strong></div>
+            <div>Järgmine uuendus: <strong id="loendur">30</strong> s pärast</div>
+            <div><span id="olek" class="status-badge">Laadimine...</span></div>
+        </div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn active" id="btnRingVaade" onclick="vahetaVaade('ring')">⭕ Ringvaade</button>
+            <button class="toggle-btn" id="btnLoendVaade" onclick="vahetaVaade('loend')">📋 Loend</button>
+        </div>
     </div>
 
-    <ol id="nimedeLoend"></ol>
+    <!-- Ringvaade -->
+    <div class="circle-wrapper" id="ringVaade">
+        <div class="orbit-ring" id="orbitRing"></div>
+        <div class="ring-container" id="nimedeRing"></div>
+        <div class="center-hub">
+            <span class="center-count" id="nimedeArv">0</span>
+            <span class="center-label">naist</span>
+            <button class="spin-btn" onclick="keerutaRingi()" title="Keeruta ja vali juhuslik nimi">🎲 Loosi</button>
+        </div>
+    </div>
+
+    <!-- Loendivaade -->
+    <div class="list-wrapper" id="loendVaade">
+        <ol id="nimedeLoend"></ol>
+    </div>
 
     <div class="controls">
         <span>Uueneb automaatselt iga 30s tagant</span>
-        <button id="uuendaNupp" onclick="laeNimed()">Uuenda kohe</button>
+        <button class="action-btn" id="uuendaNupp" onclick="laeNimed()">Uuenda kohe</button>
     </div>
 </div>
 
 <script>
     const URL = "https://docs.google.com/spreadsheets/d/1mcxAnhCth-nvfKkStKqtWvhXq5ZJEf1HjHBpCRfbxlk/export?format=csv&gid=703591842";
     let sekundeidJaanud = 30;
+    let praegusedNimed = ["Anu", "Marita", "Laura", "Sandra", "Kadri", "Katrin", "Tiina", "Triin", "Kristiina", "Liis", "Marta", "Õie"];
+    let hetkeVaade = "ring";
+    let praegunePoore = 0;
+    let onKeerutamas = false;
+
+    function vahetaVaade(vaade) {
+        hetkeVaade = vaade;
+        const ringVaade = document.getElementById("ringVaade");
+        const loendVaade = document.getElementById("loendVaade");
+        const btnRing = document.getElementById("btnRingVaade");
+        const btnLoend = document.getElementById("btnLoendVaade");
+
+        if (vaade === "ring") {
+            ringVaade.style.display = "flex";
+            loendVaade.style.display = "none";
+            btnRing.classList.add("active");
+            btnLoend.classList.remove("active");
+            paigutaNimedRingi();
+        } else {
+            ringVaade.style.display = "none";
+            loendVaade.style.display = "block";
+            btnRing.classList.remove("active");
+            btnLoend.classList.add("active");
+        }
+    }
+
+    function paigutaNimedRingi() {
+        const ring = document.getElementById("nimedeRing");
+        const orbitRing = document.getElementById("orbitRing");
+        const wrapper = document.getElementById("ringVaade");
+
+        ring.innerHTML = "";
+        const n = praegusedNimed.length;
+        if (n === 0) return;
+
+        // Arvutame orbiidi raadiuse vastavalt konteineri laiusele
+        const laius = wrapper.clientWidth || 460;
+        // Jätame nimemullikestele ruumi
+        const raadius = Math.max(90, (laius / 2) - 52);
+
+        // Uuendame dekoratiivse orbiidi suurust
+        orbitRing.style.width = (raadius * 2) + "px";
+        orbitRing.style.height = (raadius * 2) + "px";
+
+        praegusedNimed.forEach((nimi, i) => {
+            // Nurk radiaanides (alustame ülevalt: -PI / 2)
+            const nurk = (i / n) * (2 * Math.PI) - (Math.PI / 2);
+            const x = Math.round(Math.cos(nurk) * raadius);
+            const y = Math.round(Math.sin(nurk) * raadius);
+
+            const node = document.createElement("div");
+            node.className = "name-node";
+            node.textContent = nimi;
+            node.dataset.index = i;
+
+            // Salvestame nihked css muutujatena
+            node.style.setProperty("--tx", `calc(-50% + ${x}px)`);
+            node.style.setProperty("--ty", `calc(-50% + ${y}px)`);
+            node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+            node.title = `${i + 1}. ${nimi}`;
+            node.onclick = () => {
+                document.querySelectorAll(".name-node").forEach(el => el.classList.remove("highlighted"));
+                node.classList.add("highlighted");
+            };
+
+            ring.appendChild(node);
+        });
+    }
+
+    function uuendaLoend() {
+        const loend = document.getElementById("nimedeLoend");
+        loend.innerHTML = "";
+        praegusedNimed.forEach(nimi => {
+            const li = document.createElement("li");
+            li.textContent = nimi;
+            loend.appendChild(li);
+        });
+    }
+
+    function keerutaRingi() {
+        if (onKeerutamas || praegusedNimed.length === 0) return;
+        onKeerutamas = true;
+
+        // Eemaldame varasemad esiletõstmised
+        document.querySelectorAll(".name-node").forEach(el => el.classList.remove("highlighted"));
+
+        const ring = document.getElementById("nimedeRing");
+        const valitudIndeks = Math.floor(Math.random() * praegusedNimed.length);
+        const n = praegusedNimed.length;
+
+        // Täisringid (4-6 ringi) + sihtkoha nurk
+        const astmed = 360 / n;
+        const sihtNurk = 360 - (valitudIndeks * astmed);
+        const lisapoordeid = 360 * 5;
+        praegunePoore += lisapoordeid + sihtNurk - (praegunePoore % 360);
+
+        ring.style.transform = `rotate(${praegunePoore}deg)`;
+
+        // Keerame iga nimesildi vastassuunas, et tekst jääks loetavaks
+        const nupud = ring.querySelectorAll(".name-node");
+        nupud.forEach(node => {
+            const tx = node.style.getPropertyValue("--tx");
+            const ty = node.style.getPropertyValue("--ty");
+            node.style.transform = `translate(${tx}, ${ty}) rotate(${-praegunePoore}deg)`;
+        });
+
+        setTimeout(() => {
+            const voitsild = ring.querySelector(`.name-node[data-index="${valitudIndeks}"]`);
+            if (voitsild) {
+                voitsild.classList.add("highlighted");
+            }
+            onKeerutamas = false;
+        }, 3600);
+    }
 
     async function laeNimed() {
         const olekEl = document.getElementById("olek");
@@ -130,27 +487,24 @@
         olekEl.style.color = "#92400e";
 
         try {
-            // Lisame ajatempli puhverdamise vältimiseks
+            // Ajatempli lisamine puhverdamise vältimiseks
             const vastus = await fetch(URL + "&t=" + Date.now());
             if (!vastus.ok) {
                 throw new Error("HTTP viga: " + vastus.status);
             }
             const tekst = await vastus.text();
-            const nimed = tekst.split(/\r?\n/)
-                               .map(r => r.trim())
-                               .filter(r => r.length > 0);
+            praegusedNimed = tekst.split(/\r?\n/)
+                                  .map(r => r.trim())
+                                  .filter(r => r.length > 0);
 
-            const loend = document.getElementById("nimedeLoend");
-            loend.innerHTML = "";
-
-            nimed.forEach(nimi => {
-                const li = document.createElement("li");
-                li.textContent = nimi;
-                loend.appendChild(li);
-            });
+            document.getElementById("nimedeArv").textContent = praegusedNimed.length;
+            
+            // Uuendame mõlemat vaadet
+            paigutaNimedRingi();
+            uuendaLoend();
 
             document.getElementById("viimatiUuendatud").textContent = new Date().toLocaleTimeString("et-EE");
-            olekEl.textContent = `Uuendatud (${nimed.length} nime)`;
+            olekEl.textContent = `Uuendatud (${praegusedNimed.length} nime)`;
             olekEl.style.backgroundColor = "#dcfce7";
             olekEl.style.color = "#15803d";
             sekundeidJaanud = 30;
@@ -163,6 +517,13 @@
         }
     }
 
+    // Aknasuuruse muutumisel paigutame uuesti vastavalt uuele raadiusele
+    window.addEventListener("resize", () => {
+        if (hetkeVaade === "ring") {
+            paigutaNimedRingi();
+        }
+    });
+
     // Taimer: vähendab loendurit iga sekundi järel ja käivitab laadimise 30s täitumisel
     setInterval(() => {
         sekundeidJaanud--;
@@ -172,6 +533,11 @@
             document.getElementById("loendur").textContent = sekundeidJaanud;
         }
     }, 1000);
+
+    // Algne kuvamine vaikenimedega
+    document.getElementById("nimedeArv").textContent = praegusedNimed.length;
+    paigutaNimedRingi();
+    uuendaLoend();
 
     // Esimene laadimine lehe avamisel
     laeNimed();
