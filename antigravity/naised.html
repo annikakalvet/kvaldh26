@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naised veebitabelist</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: #ffffff;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px 28px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .info-bar {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            width: fit-content;
+        }
+
+        ol {
+            list-style-position: inside;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        li {
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #374151;
+            transition: background-color 0.15s ease;
+        }
+
+        li:hover {
+            background-color: #f3f4f6;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.15s ease;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Naised arvutustabelist</h1>
+    <div class="info-bar">
+        <div>Viimati uuendatud: <strong id="viimatiUuendatud">-</strong></div>
+        <div>Järgmine uuendus: <strong id="loendur">30</strong> s pärast</div>
+        <div><span id="olek" class="status-badge">Laadimine...</span></div>
+    </div>
+
+    <ol id="nimedeLoend"></ol>
+
+    <div class="controls">
+        <span>Uueneb automaatselt iga 30s tagant</span>
+        <button id="uuendaNupp" onclick="laeNimed()">Uuenda kohe</button>
+    </div>
+</div>
+
+<script>
+    const URL = "https://docs.google.com/spreadsheets/d/1mcxAnhCth-nvfKkStKqtWvhXq5ZJEf1HjHBpCRfbxlk/export?format=csv&gid=703591842";
+    let sekundeidJaanud = 30;
+
+    async function laeNimed() {
+        const olekEl = document.getElementById("olek");
+        olekEl.textContent = "Uuendamine...";
+        olekEl.style.backgroundColor = "#fef3c7";
+        olekEl.style.color = "#92400e";
+
+        try {
+            // Lisame ajatempli puhverdamise vältimiseks
+            const vastus = await fetch(URL + "&t=" + Date.now());
+            if (!vastus.ok) {
+                throw new Error("HTTP viga: " + vastus.status);
+            }
+            const tekst = await vastus.text();
+            const nimed = tekst.split(/\r?\n/)
+                               .map(r => r.trim())
+                               .filter(r => r.length > 0);
+
+            const loend = document.getElementById("nimedeLoend");
+            loend.innerHTML = "";
+
+            nimed.forEach(nimi => {
+                const li = document.createElement("li");
+                li.textContent = nimi;
+                loend.appendChild(li);
+            });
+
+            document.getElementById("viimatiUuendatud").textContent = new Date().toLocaleTimeString("et-EE");
+            olekEl.textContent = `Uuendatud (${nimed.length} nime)`;
+            olekEl.style.backgroundColor = "#dcfce7";
+            olekEl.style.color = "#15803d";
+            sekundeidJaanud = 30;
+            document.getElementById("loendur").textContent = sekundeidJaanud;
+        } catch (viga) {
+            console.error("Viga andmete laadimisel:", viga);
+            olekEl.textContent = "Viga: " + viga.message;
+            olekEl.style.backgroundColor = "#fee2e2";
+            olekEl.style.color = "#b91c1c";
+        }
+    }
+
+    // Taimer: vähendab loendurit iga sekundi järel ja käivitab laadimise 30s täitumisel
+    setInterval(() => {
+        sekundeidJaanud--;
+        if (sekundeidJaanud <= 0) {
+            laeNimed();
+        } else {
+            document.getElementById("loendur").textContent = sekundeidJaanud;
+        }
+    }, 1000);
+
+    // Esimene laadimine lehe avamisel
+    laeNimed();
+</script>
+
+</body>
+</html>
