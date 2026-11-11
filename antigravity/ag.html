@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tantsuõhtu korraldaja</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="konteiner">
+        <header class="pais">
+            <h1>Tantsuõhtu korraldaja</h1>
+            <p class="alapealkiri">Osalejate haldamine, tantsude valik ja paaride moodustamine</p>
+            <div class="pais-tegevused">
+                <button id="taasta-algandmed-nupp" class="nupp nupp-taasta" title="Lae uuesti algsed nimed Google Sheetsist">Taasta algsed nimekirjad</button>
+            </div>
+        </header>
+
+        <main class="peasisutee">
+            <div class="tulbad-ruudustik">
+                <!-- Sektsioon: Naisosalejad -->
+                <section class="kaart" id="sektsioon-naisosalejad">
+                    <div class="sektsiooni-pais">
+                        <h2>Naisosalejad</h2>
+                        <span class="kogus-mark" id="naised-kogus"></span>
+                    </div>
+                    <div class="lisamise-riba">
+                        <input type="text" id="uus-naine-sisend" placeholder="Uue naise nimi..." class="tekst-sisend">
+                        <button id="lisa-naine-nupp" class="nupp nupp-lisa">Lisa naine</button>
+                    </div>
+                    <div class="nupu-riba">
+                        <button id="uuenda-naised-nupp" class="nupp nupp-vaike">Uuenda naisenimesid</button>
+                    </div>
+                    <div id="naised-teated"></div>
+                    <div class="tuhi-ala" id="naised-konteiner">
+                        <p class="vihje-tekst">Naisosalejaid pole veel lisatud.</p>
+                    </div>
+                </section>
+
+                <!-- Sektsioon: Meesosalejad -->
+                <section class="kaart" id="sektsioon-meesosalejad">
+                    <div class="sektsiooni-pais">
+                        <h2>Meesosalejad</h2>
+                        <span class="kogus-mark" id="mehed-kogus"></span>
+                    </div>
+                    <div class="lisamise-riba">
+                        <input type="text" id="uus-mees-sisend" placeholder="Uue mehe nimi..." class="tekst-sisend">
+                        <button id="lisa-mees-nupp" class="nupp nupp-lisa">Lisa mees</button>
+                    </div>
+                    <div class="nupu-riba">
+                        <button id="uuenda-mehed-nupp" class="nupp nupp-vaike">Uuenda mehenimesid</button>
+                    </div>
+                    <div id="mehed-teated"></div>
+                    <div class="tuhi-ala" id="mehed-konteiner">
+                        <p class="vihje-tekst">Meesosalejaid pole veel lisatud.</p>
+                    </div>
+                </section>
+
+                <!-- Sektsioon: Tantsud -->
+                <section class="kaart" id="sektsioon-tantsud">
+                    <div class="sektsiooni-pais">
+                        <h2>Tantsud</h2>
+                        <span class="kogus-mark" id="tantsud-kogus"></span>
+                    </div>
+                    <div class="lisamise-riba">
+                        <input type="text" id="uus-tants-sisend" placeholder="Uue tantsu nimi..." class="tekst-sisend">
+                        <button id="lisa-tants-nupp" class="nupp nupp-lisa">Lisa tants</button>
+                    </div>
+                    <div class="nupu-riba">
+                        <button id="uuenda-tantsud-nupp" class="nupp nupp-vaike">Uuenda tantse</button>
+                    </div>
+                    <div id="tantsud-teated"></div>
+                    <div class="tuhi-ala" id="tantsud-konteiner">
+                        <p class="vihje-tekst">Tantse pole veel lisatud.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sektsioon: Tantsupaaride moodustamine -->
+            <section class="kaart taisekraan" id="sektsioon-paarid">
+                <div class="sektsiooni-pais">
+                    <h2>Tantsupaaride moodustamine</h2>
+                </div>
+                <div class="paarid-juhtpaneel">
+                    <div class="sisend-grupp">
+                        <label for="paaride-arv-sisend">Paare iga tantsu jaoks:</label>
+                        <input type="number" id="paaride-arv-sisend" min="1" value="4" class="arv-sisend">
+                    </div>
+                    <button id="moodusta-paarid-nupp" class="nupp nupp-peamine">Moodusta tantsupaarid</button>
+                </div>
+                <div id="paarid-teated"></div>
+                <div class="tuhi-ala" id="paarid-konteiner">
+                    <p class="vihje-tekst">Paare pole veel moodustatud. Vali paaride arv ja vajuta nuppu „Moodusta tantsupaarid“.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="jalus">
+            <p>&copy; 2026 Tantsuõhtu korraldaja</p>
+        </footer>
+    </div>
+</body>
+</html>
