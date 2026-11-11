@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Joonis</title>
+	<script>
+	  function joonista(){
+	    let g=tahvel.getContext("2d");
+	    g.fillStyle="black";
+		g.fillRect(10, 10, 50, 20);
+	    g.fillStyle="green";
+		g.fillText("abc", 100, 10);
+	  }
+	</script>
+  </head>
+  <body onload="joonista()">
+    <h1>Joonistamine</h1>
+	<canvas id="tahvel" width="400" height="300">
+	</canvas>
+  </body>
+</html>
