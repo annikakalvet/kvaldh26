@@ -6,9 +6,9 @@
 	  let g;
 
 	  // Ilmaandmed failist ilmaandmed.txt
-	  let ilmaandmed = [
+	  let ilmaandmed = {"andmed":[
 	    { kuupaev: "12.11", temp: 5, tuul: 6, puhang: 18 },
-	  ];
+	  ]};
 
 	  // Funktsioon lumememme joonistamiseks ilmaandmete põhjal
 	  // x, y - alumise palli keskpunkti koordinaadid
@@ -50,17 +50,19 @@
 	    g = tahvel.getContext("2d");
         g.clearRect(0, 0, 900, 340);
 	    // Joonistame iga päeva ilmaandmete põhjal lumememme
-	    for(let i = 0; i < ilmaandmed.length; i++){
-	      let d = ilmaandmed[i];
+	    for(let i = 0; i < ilmaandmed["andmed"].length; i++){
+	      let d = ilmaandmed["andmed"][i];
 	      let x = 90 + i * 150;
 	      let y = 260;
 	      lumememm(x, y, d.temp, d.tuul, d.puhang, d.kuupaev);
 	    }
 	  }
 	  function uuendaAndmed(){
-		  fetch("ilmaandmed.json").then(d => d.json()).then(loe);
+		  fetch("ilmaandmed.json").then(d => d.text()).then(loe);
 	  }
-	  function loe(andmed){
+	  function loe(tekst){
+		  console.log(tekst);
+		  let andmed=JSON.parse(tekst);
 		  ilmaandmed=andmed;
 		  joonista();
 	  }
