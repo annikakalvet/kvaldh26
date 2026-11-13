@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Ilma illustreerivad lumememmed</title>
+	<script>
+	  let g;
+
+	  // Ilmaandmed failist ilmaandmed.txt
+	  let ilmaandmed = [
+		                 ["11.10", 3, 8, 12],
+		                 ["12.10", 9, 8, 12],
+					   ];
+
+	  // Funktsioon lumememme joonistamiseks ilmaandmete põhjal
+	  // x, y - alumise palli keskpunkti koordinaadid
+	  // temp - temperatuur (suurem temp -> suurem alumine pall)
+	  // tuul - tuule kiirus (suurem tuul -> suurem keskmine pall)
+	  // puhang - puhangukiirus (suurem puhang -> suurem ülemine pall)
+	  // kuupaev - kuupäevatekst, mis joonistatakse alumise palli keskele
+	  function lumememm(x, y, temp, tuul, puhang, kuupaev){
+	    let r1 = temp * 8;      // alumise palli raadius
+	    let r2 = tuul * 4;      // keskmise palli raadius
+	    let r3 = puhang * 1;    // ülemise palli raadius
+
+	    // Alumine pall (temperatuur)
+	    g.beginPath();
+	    g.arc(x, y, r1, 0, 2 * Math.PI);
+	    g.stroke();
+
+	    // Kuupäev alumise palli keskele
+	    g.textAlign = "center";
+	    g.textBaseline = "middle";
+	    g.font = "14px Arial";
+	    g.fillStyle = "black";
+	    g.fillText(kuupaev, x, y);
+
+	    // Keskmine pall (tuule kiirus)
+	    let y2 = y - r1 - r2;
+	    g.beginPath();
+	    g.arc(x, y2, r2, 0, 2 * Math.PI);
+	    g.stroke();
+
+	    // Ülemine pall (puhangu kiirus)
+	    let y3 = y2 - r2 - r3;
+	    g.beginPath();
+	    g.arc(x, y3, r3, 0, 2 * Math.PI);
+	    g.stroke();
+	  }
+
+	  function joonista(){
+	    g = tahvel.getContext("2d");
+        g.clearRect(0, 0, 900, 340);
+	    // Joonistame iga päeva ilmaandmete põhjal lumememme
+	    for(let i = 0; i < ilmaandmed.length; i++){
+	      let d = ilmaandmed[i];
+	      let x = 90 + i * 150;
+	      let y = 260;
+	      lumememm(x, y, d[1], d[2], d[3], d[0]);
+	    }
+	  }
+	  function uuendaAndmed(){
+		  fetch("ilmaandmed.csv").then(d => d.text()).then(loe);
+	  }
+	  function loe(tekst){
+		  console.log(tekst);
+		  ilmaandmed=[]
+		  for(rida of tekst.split("\n")){
+			  let m=rida.split(",")
+			  m[1]=parseInt(m[1]);
+			  m[2]=parseInt(m[2]);
+			  m[3]=parseInt(m[3]);
+			  ilmaandmed.push(m);
+		  }
+		  joonista();
+	  }
+	</script>
+  </head>
+  <body onload="joonista()">
+    <h1>Ilmaennustuse lumememmed</h1>
+	<p>Alumine pall = temperatuur | Keskmine pall = tuule kiirus | Ülemine pall = puhangu kiirus</p>
+	<canvas id="tahvel" width="900" height="340">
+	</canvas><br />
+	<input type="button" value="uuenda" onclick="uuendaAndmed()" />
+  </body>
+</html>
