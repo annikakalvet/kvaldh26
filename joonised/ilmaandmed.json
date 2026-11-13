@@ -1,0 +1,7 @@
+[
+	    { kuupaev: "12.11", temp: 5, tuul: 6, puhang: 18 },
+	    { kuupaev: "13.11", temp: 4, tuul: 7, puhang: 18 },
+	    { kuupaev: "14.11", temp: 3, tuul: 8, puhang: 22 },
+	    { kuupaev: "15.11", temp: 5, tuul: 8, puhang: 21 },
+	    { kuupaev: "16.11", temp: 4, tuul: 3, puhang: 5 }
+	  ]
