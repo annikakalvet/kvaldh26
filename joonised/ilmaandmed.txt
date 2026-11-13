@@ -1,0 +1,7 @@
+Tallinna ilmaennustus järgnevaks neljaks päevaks (keskpäeval kell 12:00):
+
+Kuupäev       Nädalapäev    Temperatuur (°C)    Tuule kiirus (m/s)    Tuule puhangud (m/s)
+12.11.2026    Neljapäev     5                   6                     18
+13.11.2026    Reede         4                   7                     18
+14.11.2026    Laupäev       3                   8                     22
+15.11.2026    Pühapäev      5                   8                     21
