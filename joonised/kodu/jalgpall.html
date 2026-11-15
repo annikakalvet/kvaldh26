@@ -1,16 +1,36 @@
-
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Jalgpalliväljak</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        #infoKast {
+            margin: 12px 0;
+            padding: 10px 15px;
+            background-color: #f0f4f8;
+            border-left: 5px solid #278b45;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        canvas {
+            display: block;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+    </style>
 
     <script>
         let g;
+        let mangijad = [];
+        let valitudMangija = null;
 
         // Funktsioon jalgpalluri joonistamiseks
         function jalgpallur(x, y, suurus, varv, number) {
-
             // Pea
             g.beginPath();
             g.arc(x, y, suurus, 0, 2 * Math.PI);
@@ -57,11 +77,19 @@
             g.strokeRect(680, 150, 100, 150);
         }
 
-        // Mängijate andmed
-        let mangijad = [];
+        // Kontrollib, kas punkt (px, py) tabas mängijat
+        function kasTabasMangijat(m, px, py) {
+            let r = m.suurus || 12;
+            let vasak = m.x - r - 4;
+            let parem = m.x + r + 4;
+            let yleval = m.y - r - 4;
+            let all = m.y + 4 * r + 4;
+            return px >= vasak && px <= parem && py >= yleval && py <= all;
+        }
 
         // Funktsioon kogu joonise loomiseks
         function joonista() {
+            let tahvel = document.getElementById("tahvel");
             g = tahvel.getContext("2d");
 
             g.clearRect(0, 0, 800, 450);
@@ -69,23 +97,53 @@
             valjak();
 
             // Joonistame kõik mängijad
-            for(let i = 0; i < mangijad.length; i++) {
+            for (let i = 0; i < mangijad.length; i++) {
                 let m = mangijad[i];
+                let suurus = m.suurus || 12;
+                jalgpallur(m.x, m.y, suurus, m.varv, m.number);
+            }
 
-                jalgpallur(m.x, m.y, m.suurus,
-                           m.varv, m.number);
+            // Kui keegi on valitud, tõstame ta esile ja kuvame nimesildi
+            if (valitudMangija) {
+                let m = valitudMangija;
+                let r = m.suurus || 12;
+
+                // Raam ümber valitud mängija
+                g.strokeStyle = "#ffe600";
+                g.lineWidth = 3;
+                g.strokeRect(m.x - r - 4, m.y - r - 4, (r + 4) * 2, 5 * r + 8);
+
+                // Nime ja numbri silt mängija kohal
+                let siltTekst = `${m.nimi || "Mängija"} (#${m.number})`;
+                g.font = "bold 13px Arial";
+                let laius = g.measureText(siltTekst).width + 16;
+                let siltX = m.x - laius / 2;
+                let siltY = m.y - r - 26;
+
+                // Sildi taust
+                g.fillStyle = "rgba(0, 0, 0, 0.8)";
+                g.beginPath();
+                g.roundRect ? g.roundRect(siltX, siltY, laius, 22, 5) : g.fillRect(siltX, siltY, laius, 22);
+                g.fill();
+
+                // Sildi tekst
+                g.fillStyle = "#ffffff";
+                g.textAlign = "center";
+                g.fillText(siltTekst, m.x, siltY + 15);
             }
         }
-            function uuendaAndmed() {
-        fetch("mangijad.json")
-            .then(d => d.json())
-            .then(loe);
-    }
+
+        function uuendaAndmed() {
+            fetch("mangijad.json")
+                .then(d => d.json())
+                .then(loe);
+        }
 
         function loe(andmed) {
             mangijad = andmed.mangijad;
             joonista();
         }
+
         const veebiteenus = "https://script.google.com/macros/s/AKfycbx1O9SGvQ2fM-mf_o85CfKuu4vuzQhti2FiUl0g-SnNlrAvlW0j92yDvAqsM25fdu-pFw/exec";
         
         function uuendaVeebist() {
@@ -98,49 +156,108 @@
             mangijad = andmed.mangijad;
             joonista();
         }
+
         // Uue mängija lisamine
         function lisaMangija() {
-    let nimi = document.getElementById("nimi").value;
-    let x = Number(document.getElementById("x").value);
-    let y = Number(document.getElementById("y").value);
-    let varv = document.getElementById("varv").value;
-    let number = Number(document.getElementById("number").value);
+            let nimi = document.getElementById("nimi").value;
+            let x = Number(document.getElementById("x").value);
+            let y = Number(document.getElementById("y").value);
+            let varv = document.getElementById("varv").value;
+            let number = Number(document.getElementById("number").value);
 
-    let uus = {
-        nimi: nimi,
-        x: x,
-        y: y,
-        varv: varv,
-        number: number,
-        suurus: 12
-    };
+            let uus = {
+                nimi: nimi,
+                x: x,
+                y: y,
+                varv: varv,
+                number: number,
+                suurus: 12
+            };
 
-    // Lisame mängija veebilehe massiivi
-    mangijad.push(uus);
+            // Lisame mängija veebilehe massiivi
+            mangijad.push(uus);
 
-    // Joonistame mängijad uuesti
-    joonista();
+            // Joonistame mängijad uuesti
+            joonista();
 
-    // Saadame uue mängija Google Sheetsi
-    fetch(veebiteenus, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "text/plain"
-        },
-        body: JSON.stringify(uus)
-    })
-    .then(() => {
-        // Loeme Google Sheetsist uuendatud andmed
-        uuendaVeebist();
-    });
-}
+            // Saadame uue mängija Google Sheetsi
+            fetch(veebiteenus, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: JSON.stringify(uus)
+            })
+            .then(() => {
+                // Loeme Google Sheetsist uuendatud andmed
+                uuendaVeebist();
+            });
+        }
+
+        // Käivitatakse lehe laadimisel (seob ka kliki- ja liigutussündmused)
+        function algus() {
+            let tahvel = document.getElementById("tahvel");
+
+            // Klikk canvasel mängija valimiseks
+            tahvel.addEventListener("click", function(event) {
+                let rect = tahvel.getBoundingClientRect();
+                let scaleX = tahvel.width / rect.width;
+                let scaleY = tahvel.height / rect.height;
+                let klikkX = (event.clientX - rect.left) * scaleX;
+                let klikkY = (event.clientY - rect.top) * scaleY;
+
+                let leitud = null;
+                // Otsime tagantpoolt ettepoole (kõige pealmine mängija enne)
+                for (let i = mangijad.length - 1; i >= 0; i--) {
+                    if (kasTabasMangijat(mangijad[i], klikkX, klikkY)) {
+                        leitud = mangijad[i];
+                        break;
+                    }
+                }
+
+                valitudMangija = leitud;
+                let infoElement = document.getElementById("infoTekst");
+                if (valitudMangija) {
+                    infoElement.innerHTML = `<strong>${valitudMangija.nimi || "Määratlemata"}</strong> (number <strong>#${valitudMangija.number}</strong>, värv: ${valitudMangija.varv})`;
+                } else {
+                    infoElement.innerText = "Klikka väljakul olevale mängijale";
+                }
+
+                joonista();
+            });
+
+            // Hiirekursor muutub käekeseks, kui liigutakse mängija kohale
+            tahvel.addEventListener("mousemove", function(event) {
+                let rect = tahvel.getBoundingClientRect();
+                let scaleX = tahvel.width / rect.width;
+                let scaleY = tahvel.height / rect.height;
+                let hiirX = (event.clientX - rect.left) * scaleX;
+                let hiirY = (event.clientY - rect.top) * scaleY;
+
+                let onMangijaKohal = false;
+                for (let i = 0; i < mangijad.length; i++) {
+                    if (kasTabasMangijat(mangijad[i], hiirX, hiirY)) {
+                        onMangijaKohal = true;
+                        break;
+                    }
+                }
+                tahvel.style.cursor = onMangijaKohal ? "pointer" : "default";
+            });
+
+            // Laeme andmed veebiteenusest
+            uuendaVeebist();
+        }
     </script>
 </head>
 
-<body onload="uuendaVeebist()">
+<body onload="algus()">
 
     <h1>Jalgpalliväljak</h1>
+
+    <div id="infoKast">
+        Valitud mängija: <span id="infoTekst">Klikka väljakul olevale mängijale</span>
+    </div>
 
     <canvas id="tahvel" width="800" height="450">
     </canvas>
