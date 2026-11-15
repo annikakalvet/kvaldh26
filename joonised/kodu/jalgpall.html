@@ -58,19 +58,7 @@
         }
 
         // Mängijate andmed
-        let mangijad = [
-            {nimi: "Annika", x: 200, y: 200,
-             varv: "blue", number: 10, suurus: 12},
-
-            {nimi: "Mari", x: 250, y: 300,
-             varv: "blue", number: 7, suurus: 12},
-
-            {nimi: "Kati", x: 550, y: 180,
-             varv: "red", number: 9, suurus: 12},
-
-            {nimi: "Laura", x: 600, y: 300,
-             varv: "red", number: 11, suurus: 12}
-        ];
+        let mangijad = [];
 
         // Funktsioon kogu joonise loomiseks
         function joonista() {
@@ -88,7 +76,16 @@
                            m.varv, m.number);
             }
         }
+            function uuendaAndmed() {
+        fetch("mangijad.json")
+            .then(d => d.json())
+            .then(loe);
+    }
 
+        function loe(andmed) {
+            mangijad = andmed.mangijad;
+            joonista();
+        }
         // Uue mängija lisamine
         function lisaMangija() {
             let nimi = document.getElementById("nimi").value;
@@ -113,7 +110,7 @@
     </script>
 </head>
 
-<body onload="joonista()">
+<body onload="uuendaAndmed()">
 
     <h1>Jalgpalliväljak</h1>
 
