@@ -27,6 +27,28 @@
             g.textAlign = "center";
             g.font = suurus + "px Arial";
             g.fillText(number, x, y + suurus * 2.5);
+            
+        function lisaMangija() {
+            let nimi = document.getElementById("nimi").value;
+            let x = Number(document.getElementById("x").value);
+            let y = Number(document.getElementById("y").value);
+            let varv = document.getElementById("varv").value;
+            let number = Number(document.getElementById("number").value);
+        
+            let uus = {
+                nimi: nimi,
+                x: x,
+                y: y,
+                varv: varv,
+                number: number,
+                suurus: 12
+            };
+        
+            mangijad.push(uus);
+        
+            joonista();
+        }
+
         }
 
         // Funktsioon jalgpalliväljaku joonistamiseks
