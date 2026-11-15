@@ -100,25 +100,41 @@
         }
         // Uue mängija lisamine
         function lisaMangija() {
-            let nimi = document.getElementById("nimi").value;
-            let x = Number(document.getElementById("x").value);
-            let y = Number(document.getElementById("y").value);
-            let varv = document.getElementById("varv").value;
-            let number = Number(document.getElementById("number").value);
+    let nimi = document.getElementById("nimi").value;
+    let x = Number(document.getElementById("x").value);
+    let y = Number(document.getElementById("y").value);
+    let varv = document.getElementById("varv").value;
+    let number = Number(document.getElementById("number").value);
 
-            let uus = {
-                nimi: nimi,
-                x: x,
-                y: y,
-                varv: varv,
-                number: number,
-                suurus: 12
-            };
+    let uus = {
+        nimi: nimi,
+        x: x,
+        y: y,
+        varv: varv,
+        number: number,
+        suurus: 12
+    };
 
-            mangijad.push(uus);
+    // Lisame mängija veebilehe massiivi
+    mangijad.push(uus);
 
-            joonista();
-        }
+    // Joonistame mängijad uuesti
+    joonista();
+
+    // Saadame uue mängija Google Sheetsi
+    fetch(veebiteenus, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(uus)
+    })
+    .then(() => {
+        // Loeme Google Sheetsist uuendatud andmed
+        uuendaVeebist();
+    });
+}
     </script>
 </head>
 
