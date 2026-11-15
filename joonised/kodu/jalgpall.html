@@ -1,0 +1,100 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Jalgpalliväljak</title>
+
+    <script>
+        let g;
+
+        // Funktsioon jalgpalluri joonistamiseks
+        function jalgpallur(x, y, suurus, varv, number) {
+
+            // Pea
+            g.beginPath();
+            g.arc(x, y, suurus, 0, 2 * Math.PI);
+            g.fillStyle = "#f2c9a5";
+            g.fill();
+
+            // Keha ehk särk
+            g.fillStyle = varv;
+            g.fillRect(x - suurus, y + suurus,
+                       suurus * 2, suurus * 3);
+
+            // Särginumber
+            g.fillStyle = "white";
+            g.textAlign = "center";
+            g.font = suurus + "px Arial";
+            g.fillText(number, x, y + suurus * 2.5);
+        }
+
+        // Funktsioon jalgpalliväljaku joonistamiseks
+        function valjak() {
+            g.fillStyle = "#278b45";
+            g.fillRect(0, 0, 800, 450);
+
+            // Väljaku piirjooned
+            g.strokeStyle = "white";
+            g.lineWidth = 3;
+            g.strokeRect(20, 20, 760, 410);
+
+            // Keskjoon
+            g.beginPath();
+            g.moveTo(400, 20);
+            g.lineTo(400, 430);
+            g.stroke();
+
+            // Kesk ring
+            g.beginPath();
+            g.arc(400, 225, 60, 0, 2 * Math.PI);
+            g.stroke();
+
+            // Vasak väravaala
+            g.strokeRect(20, 150, 100, 150);
+
+            // Parem väravaala
+            g.strokeRect(680, 150, 100, 150);
+        }
+
+        // Mängijate andmed
+        let mangijad = [
+            {nimi: "Annika", x: 200, y: 200,
+             varv: "blue", number: 10, suurus: 12},
+
+            {nimi: "Mari", x: 250, y: 300,
+             varv: "blue", number: 7, suurus: 12},
+
+            {nimi: "Kati", x: 550, y: 180,
+             varv: "red", number: 9, suurus: 12},
+
+            {nimi: "Laura", x: 600, y: 300,
+             varv: "red", number: 11, suurus: 12}
+        ];
+
+        // Funktsioon kogu joonise loomiseks
+        function joonista() {
+            g = tahvel.getContext("2d");
+
+            g.clearRect(0, 0, 800, 450);
+
+            valjak();
+
+            // Joonistame kõik mängijad
+            for(let i = 0; i < mangijad.length; i++) {
+                let m = mangijad[i];
+
+                jalgpallur(m.x, m.y, m.suurus,
+                           m.varv, m.number);
+            }
+        }
+    </script>
+</head>
+
+<body onload="joonista()">
+    <h1>Jalgpalliväljak</h1>
+
+    <canvas id="tahvel" width="800" height="450">
+    </canvas>
+</body>
+</html>
