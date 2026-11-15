@@ -27,28 +27,6 @@
             g.textAlign = "center";
             g.font = suurus + "px Arial";
             g.fillText(number, x, y + suurus * 2.5);
-            
-        function lisaMangija() {
-            let nimi = document.getElementById("nimi").value;
-            let x = Number(document.getElementById("x").value);
-            let y = Number(document.getElementById("y").value);
-            let varv = document.getElementById("varv").value;
-            let number = Number(document.getElementById("number").value);
-        
-            let uus = {
-                nimi: nimi,
-                x: x,
-                y: y,
-                varv: varv,
-                number: number,
-                suurus: 12
-            };
-        
-            mangijad.push(uus);
-        
-            joonista();
-        }
-
         }
 
         // Funktsioon jalgpalliväljaku joonistamiseks
@@ -110,59 +88,60 @@
                            m.varv, m.number);
             }
         }
-        
-function lisaMangija() {
-    let nimi = document.getElementById("nimi").value;
-    let x = Number(document.getElementById("x").value);
-    let y = Number(document.getElementById("y").value);
-    let varv = document.getElementById("varv").value;
-    let number = Number(document.getElementById("number").value);
 
-    let uus = {
-        nimi: nimi,
-        x: x,
-        y: y,
-        varv: varv,
-        number: number,
-        suurus: 12
-    };
+        // Uue mängija lisamine
+        function lisaMangija() {
+            let nimi = document.getElementById("nimi").value;
+            let x = Number(document.getElementById("x").value);
+            let y = Number(document.getElementById("y").value);
+            let varv = document.getElementById("varv").value;
+            let number = Number(document.getElementById("number").value);
 
-    mangijad.push(uus);
+            let uus = {
+                nimi: nimi,
+                x: x,
+                y: y,
+                varv: varv,
+                number: number,
+                suurus: 12
+            };
 
-    joonista();
-}
+            mangijad.push(uus);
 
+            joonista();
+        }
     </script>
 </head>
 
 <body onload="joonista()">
+
     <h1>Jalgpalliväljak</h1>
 
     <canvas id="tahvel" width="800" height="450">
-        
-        <h2>Lisa mängija</h2>
-        
-        <label>Nimi:</label>
-        <input id="nimi" type="text">
-        
-        <label>X:</label>
-        <input id="x" type="number" value="300">
-        
-        <label>Y:</label>
-        <input id="y" type="number" value="200">
-        
-        <label>Värv:</label>
-        <select id="varv">
-            <option value="blue">Sinine</option>
-            <option value="red">Punane</option>
-            <option value="yellow">Kollane</option>
-        </select>
-        
-        <label>Number:</label>
-        <input id="number" type="number" value="5">
-        
-        <button onclick="lisaMangija()">Lisa mängija</button>
-
     </canvas>
+
+    <h2>Lisa mängija</h2>
+
+    <label>Nimi:</label>
+    <input id="nimi" type="text">
+
+    <label>X:</label>
+    <input id="x" type="number" value="300">
+
+    <label>Y:</label>
+    <input id="y" type="number" value="200">
+
+    <label>Värv:</label>
+    <select id="varv">
+        <option value="blue">Sinine</option>
+        <option value="red">Punane</option>
+        <option value="yellow">Kollane</option>
+    </select>
+
+    <label>Number:</label>
+    <input id="number" type="number" value="5">
+
+    <button onclick="lisaMangija()">Lisa mängija</button>
+
 </body>
 </html>
